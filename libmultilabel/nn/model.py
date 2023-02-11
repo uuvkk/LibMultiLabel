@@ -1,5 +1,7 @@
 from abc import abstractmethod
+from transformers import AdamW
 
+import logging
 import numpy as np
 import pytorch_lightning as pl
 import torch
@@ -83,6 +85,22 @@ class MultiLabelModel(pl.LightningModule):
             optimizer = optim.AdamW(parameters,
                                     weight_decay=self.weight_decay,
                                     lr=self.learning_rate)
+        elif optimizer_name == 'huggingface_adamw_with_bias_correction':
+            optimizer = AdamW(parameters,
+                              weight_decay=self.weight_decay,
+                              lr=self.learning_rate,
+                              eps=1e-8,
+                              correct_bias=True)
+            logging.info('Using Huggingface AdamW with bias correction.')
+            logging.info(optimizer)
+        elif optimizer_name == 'huggingface_adamw':
+            optimizer = AdamW(parameters,
+                              weight_decay=self.weight_decay,
+                              lr=self.learning_rate,
+                              eps=1e-8,
+                              correct_bias=False)
+            logging.info('Using Huggingface AdamW')
+            logging.info(optimizer)
         elif optimizer_name == 'adamax':
             optimizer = optim.Adamax(parameters,
                                      weight_decay=self.weight_decay,
